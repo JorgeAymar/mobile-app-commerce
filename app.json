@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile-app-commerce",
-    "slug": "mobile-app-commerce",
+    "name": "Sales",
+    "slug": "sales",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
