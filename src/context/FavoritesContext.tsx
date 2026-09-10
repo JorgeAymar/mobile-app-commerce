@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { Product } from "../types";
 
 type FavoritesContextValue = {
@@ -12,22 +12,25 @@ const FavoritesContext = createContext<FavoritesContextValue | undefined>(undefi
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<Product[]>([]);
 
-  const isFavorite = (productId: string) =>
-    favorites.some((product) => product.id === productId);
+  const isFavorite = useCallback(
+    (productId: string) => favorites.some((product) => product.id === productId),
+    [favorites]
+  );
 
-  const toggleFavorite = (product: Product) => {
+  const toggleFavorite = useCallback((product: Product) => {
     setFavorites((prev) =>
       prev.some((p) => p.id === product.id)
         ? prev.filter((p) => p.id !== product.id)
         : [...prev, product]
     );
-  };
+  }, []);
 
-  return (
-    <FavoritesContext.Provider value={{ favorites, isFavorite, toggleFavorite }}>
-      {children}
-    </FavoritesContext.Provider>
+  const value = useMemo(
+    () => ({ favorites, isFavorite, toggleFavorite }),
+    [favorites, isFavorite, toggleFavorite]
   );
+
+  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }
 
 export function useFavorites() {

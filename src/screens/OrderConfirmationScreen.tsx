@@ -4,6 +4,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme";
 import { RootStackParamList } from "../types";
+import { formatPrice } from "../utils/format";
 
 type Props = NativeStackScreenProps<RootStackParamList, "OrderConfirmation">;
 
@@ -26,7 +27,7 @@ export function OrderConfirmationScreen({ route, navigation }: Props) {
         </View>
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Total pagado</Text>
-          <Text style={styles.cardValue}>${total.toFixed(2)}</Text>
+          <Text style={styles.cardValue}>{formatPrice(total)}</Text>
         </View>
       </View>
       <Pressable

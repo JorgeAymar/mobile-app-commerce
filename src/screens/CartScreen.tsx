@@ -8,6 +8,7 @@ import { QuantityStepper } from "../components/QuantityStepper";
 import { useCart } from "../context/CartContext";
 import { colors } from "../theme";
 import { RootStackParamList, TabParamList } from "../types";
+import { formatPrice } from "../utils/format";
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, "Cart">,
@@ -50,7 +51,12 @@ export function CartScreen({ navigation }: Props) {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <View style={styles.row}>
+          <Pressable
+            style={styles.row}
+            onPress={() =>
+              navigation.navigate("ProductDetail", { productId: item.product.id })
+            }
+          >
             <ProductTile product={item.product} size={56} />
             <View style={styles.rowInfo}>
               <Text style={styles.name} numberOfLines={2}>
@@ -63,32 +69,35 @@ export function CartScreen({ navigation }: Props) {
                   onDecrement={() => decrementQuantity(item.product.id)}
                 />
                 <Text style={styles.price}>
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.product.price * item.quantity)}
                 </Text>
               </View>
             </View>
             <Pressable
-              onPress={() => removeFromCart(item.product.id)}
+              onPress={(event) => {
+                event.stopPropagation();
+                removeFromCart(item.product.id);
+              }}
               hitSlop={8}
               style={styles.removeButton}
             >
               <Text style={styles.removeButtonText}>Quitar</Text>
             </Pressable>
-          </View>
+          </Pressable>
         )}
       />
       <View style={styles.summary}>
         <View style={styles.summaryLine}>
           <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
         </View>
         <View style={styles.summaryLine}>
           <Text style={styles.summaryLabel}>Envío</Text>
-          <Text style={styles.summaryValue}>${shipping.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>{formatPrice(shipping)}</Text>
         </View>
         <View style={[styles.summaryLine, styles.totalLine]}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
+          <Text style={styles.totalValue}>{formatPrice(total)}</Text>
         </View>
         <Pressable
           style={styles.checkoutButton}

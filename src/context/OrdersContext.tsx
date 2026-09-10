@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 type OrdersContextValue = {
   orderCount: number;
@@ -10,13 +10,11 @@ const OrdersContext = createContext<OrdersContextValue | undefined>(undefined);
 export function OrdersProvider({ children }: { children: React.ReactNode }) {
   const [orderCount, setOrderCount] = useState(0);
 
-  const registerOrder = () => setOrderCount((count) => count + 1);
+  const registerOrder = useCallback(() => setOrderCount((count) => count + 1), []);
 
-  return (
-    <OrdersContext.Provider value={{ orderCount, registerOrder }}>
-      {children}
-    </OrdersContext.Provider>
-  );
+  const value = useMemo(() => ({ orderCount, registerOrder }), [orderCount, registerOrder]);
+
+  return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 }
 
 export function useOrders() {

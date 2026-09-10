@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useFavorites } from "../context/FavoritesContext";
 import { Product } from "../types";
 import { colors } from "../theme";
+import { formatPrice } from "../utils/format";
 import { ProductTile } from "./ProductTile";
 import { StarRating } from "./StarRating";
 
@@ -12,7 +13,7 @@ type Props = {
   onPress: () => void;
 };
 
-export function ProductCard({ product, onPress }: Props) {
+export const ProductCard = React.memo(function ProductCard({ product, onPress }: Props) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite(product.id);
 
@@ -43,11 +44,11 @@ export function ProductCard({ product, onPress }: Props) {
           <StarRating rating={product.rating} size={11} />
           <Text style={styles.ratingValue}>{product.rating.toFixed(1)}</Text>
         </View>
-        <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+        <Text style={styles.price}>{formatPrice(product.price)}</Text>
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {

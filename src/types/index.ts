@@ -37,7 +37,6 @@ export type Product = {
   category: Category;
   icon: IconName;
   image: string;
-  tileColor: string;
   iconColor: string;
   rating: number;
   reviewCount: number;

@@ -14,6 +14,7 @@ import { useCart } from "../context/CartContext";
 import { useOrders } from "../context/OrdersContext";
 import { colors } from "../theme";
 import { RootStackParamList } from "../types";
+import { formatPrice } from "../utils/format";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Checkout">;
 
@@ -24,14 +25,18 @@ export function CheckoutScreen({ navigation }: Props) {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
+  const [submitting, setSubmitting] = useState(false);
 
-  const canConfirm = name.trim().length > 0 && address.trim().length > 0;
+  const canConfirm =
+    name.trim().length > 0 && address.trim().length > 0 && city.trim().length > 0;
 
   const handleConfirm = () => {
+    if (submitting) return;
     if (!canConfirm) {
-      Alert.alert("Faltan datos", "Completá tu nombre y dirección para continuar.");
+      Alert.alert("Faltan datos", "Completá tu nombre, dirección y ciudad para continuar.");
       return;
     }
+    setSubmitting(true);
     const orderNumber = `SL-${Math.floor(10000 + Math.random() * 90000)}`;
     registerOrder();
     clearCart();
@@ -111,21 +116,27 @@ export function CheckoutScreen({ navigation }: Props) {
         <View style={styles.summary}>
           <View style={styles.summaryLine}>
             <Text style={styles.summaryLabel}>{totalItems} artículos</Text>
-            <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>{formatPrice(subtotal)}</Text>
           </View>
           <View style={styles.summaryLine}>
             <Text style={styles.summaryLabel}>Envío</Text>
-            <Text style={styles.summaryValue}>${shipping.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>{formatPrice(shipping)}</Text>
           </View>
           <View style={[styles.summaryLine, styles.totalLine]}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>{formatPrice(total)}</Text>
           </View>
         </View>
       </ScrollView>
       <View style={styles.footer}>
-        <Pressable style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmButtonText}>Confirmar pedido</Text>
+        <Pressable
+          style={[styles.confirmButton, submitting && styles.confirmButtonDisabled]}
+          onPress={handleConfirm}
+          disabled={submitting}
+        >
+          <Text style={styles.confirmButtonText}>
+            {submitting ? "Confirmando..." : "Confirmar pedido"}
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -235,6 +246,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
+  },
+  confirmButtonDisabled: {
+    opacity: 0.6,
   },
   confirmButtonText: {
     color: colors.accentContrast,

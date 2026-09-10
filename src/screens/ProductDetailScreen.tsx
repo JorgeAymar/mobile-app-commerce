@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { QuantityStepper } from "../components/QuantityStepper";
 import { ProductTile } from "../components/ProductTile";
@@ -10,15 +10,19 @@ import { useFavorites } from "../context/FavoritesContext";
 import { PRODUCTS } from "../data/products";
 import { colors } from "../theme";
 import { RootStackParamList } from "../types";
+import { formatPrice } from "../utils/format";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ProductDetail">;
 
+const ADD_TO_CART_COOLDOWN_MS = 800;
+
 export function ProductDetailScreen({ route, navigation }: Props) {
   const { productId } = route.params;
-  const product = PRODUCTS.find((p) => p.id === productId);
+  const product = useMemo(() => PRODUCTS.find((p) => p.id === productId), [productId]);
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [quantity, setQuantity] = useState(1);
+  const lastAddRef = useRef(0);
 
   if (!product) {
     return (
@@ -56,7 +60,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
           </Text>
         </View>
         <View style={styles.priceRow}>
-          <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+          <Text style={styles.price}>{formatPrice(product.price)}</Text>
           <QuantityStepper
             quantity={quantity}
             onIncrement={() => setQuantity((q) => q + 1)}
@@ -88,12 +92,15 @@ export function ProductDetailScreen({ route, navigation }: Props) {
         <Pressable
           style={styles.addButton}
           onPress={() => {
+            const now = Date.now();
+            if (now - lastAddRef.current < ADD_TO_CART_COOLDOWN_MS) return;
+            lastAddRef.current = now;
             addToCart(product, quantity);
             Alert.alert("Agregado", `${product.name} fue agregado al carrito.`);
           }}
         >
           <Text style={styles.addButtonText}>
-            Agregar al carrito · ${(product.price * quantity).toFixed(2)}
+            Agregar al carrito · {formatPrice(product.price * quantity)}
           </Text>
         </Pressable>
       </View>

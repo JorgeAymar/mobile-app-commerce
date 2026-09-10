@@ -11,11 +11,25 @@ type Props = {
 export function QuantityStepper({ quantity, onIncrement, onDecrement }: Props) {
   return (
     <View style={styles.container}>
-      <Pressable style={styles.button} onPress={onDecrement} hitSlop={8}>
+      <Pressable
+        style={styles.button}
+        onPress={(event) => {
+          event.stopPropagation();
+          onDecrement();
+        }}
+        hitSlop={8}
+      >
         <Text style={styles.buttonText}>−</Text>
       </Pressable>
       <Text style={styles.quantity}>{quantity}</Text>
-      <Pressable style={styles.button} onPress={onIncrement} hitSlop={8}>
+      <Pressable
+        style={styles.button}
+        onPress={(event) => {
+          event.stopPropagation();
+          onIncrement();
+        }}
+        hitSlop={8}
+      >
         <Text style={styles.buttonText}>+</Text>
       </Pressable>
     </View>
